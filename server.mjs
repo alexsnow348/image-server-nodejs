@@ -8,8 +8,9 @@ const PORT = 3000;
 
 // Define OS-specific image directory
 const isWindows = process.platform === 'win32';
-const IMAGE_DIR = isWindows ? 'C:/images' : '/data/biolab_arralyze_picture_data/20240529 K562-NK cells purified_Killing Assay (9b33)/';
-
+const IMAGE_DIR = isWindows ? 'C:/images' : '/data/biolab_arralyze_picture_data/';
+const INTERESTED_FOLDER = ["20240529 K562-NK cells purified_Killing Assay (9b33)", "20241219_Hek293 trypsination timelapse (3826)"];	
+const IMAGES = [];
 app.use(cors()); // Enable CORS for frontend access
 
 // Helper function to scan directories recursively
@@ -38,9 +39,15 @@ async function scanDirectory(dir) {
   return imageFiles;
 }
 
-const IMAGES = await scanDirectory(IMAGE_DIR);
+for (const folder of INTERESTED_FOLDER) {
+  const folderPath = path.join(IMAGE_DIR, folder);
+  const currentImages = await scanDirectory(folderPath);
+  IMAGES.push(...currentImages);
+}
+
+// const IMAGES = await scanDirectory(IMAGE_DIR);
 // API to list images in the directory (including subfolders)
-app.get('/api/images', async (req, res) => {
+app.get('/images/list', async (req, res) => {
   try {
     // Only return the image filenames (not the full path)
     const imageFiles = IMAGES.map(image => path.relative(IMAGE_DIR, image));
