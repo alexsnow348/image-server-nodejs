@@ -49,8 +49,10 @@ for (const folder of INTERESTED_FOLDER) {
 // API to list images in the directory (including subfolders)
 app.get('/images/list', async (req, res) => {
   try {
-    // Only return the image filenames (not the full path)
-    const imageFiles = IMAGES.map(image => path.relative(IMAGE_DIR, image));
+    const experimentName = req.query.experimentName;
+    // Only return the image filenames (not the full path) and experiment name
+    const imageFiles = IMAGES.filter(image => path.relative(IMAGE_DIR, image).includes(experimentName))
+                             .map(image => path.relative(IMAGE_DIR, image));
     res.json(imageFiles);
   } catch (err) {
     res.status(500).json({ error: 'Unable to scan directory' });
